@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Correção Shapiro-Hubble</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #fff;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 5px;
+      box-sizing: border-box;
+    }
+    .btn {
+      padding: 10px 20px;
+      margin: 10px 0;
+      background: #007acc;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #005fa3;
+    }
+  </style>
+</head>
+<body>
+  <h1>Correção Shapiro-Hubble</h1>
+  <p>Preencha os dados abaixo para calcular a velocidade corrigida da galáxia:</p>
+
+  <form id="galaxyForm">
+    <label>Nome da Galáxia:</label><br />
+    <input type="text" id="nome" required /><br />
+
+    <label>cz (km/s):</label><br />
+    <input type="number" id="cz" required /><br />
+
+    <label>Distância D (Mpc):</label><br />
+    <input type="number" id="distancia" step="0.01" required /><br />
+
+    <label>Velocidade Newtoniana (km/s):</label><br />
+    <input type="number" id="vnewton" required /><br />
+
+    <label>Velocidade Observada (km/s):</label><br />
+    <input type="number" id="vobs" required /><br />
+
+    <button type="submit" class="btn">Calcular e Adicionar</button>
+  </form>
+
+  <table id="resultadoTable">
+    <thead>
+      <tr>
+        <th>Galáxia</th>
+        <th>cz</th>
+        <th>D (Mpc)</th>
+        <th>H₀_local</th>
+        <th>v_newton</th>
+        <th>Correção (%)</th>
+        <th>v_corrigida</th>
+        <th>v_obs</th>
+        <th>Erro (%)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const H0_GLOBAL = 67.4;
+
+    document.getElementById('galaxyForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const nome = document.getElementById('nome').value;
+      const cz = parseFloat(document.getElementById('cz').value);
+      const D = parseFloat(document.getElementById('distancia').value);
+      const vnewton = parseFloat(document.getElementById('vnewton').value);
+      const vobs = parseFloat(document.getElementById('vobs').value);
+
+      const h0local = cz / D;
+      const correcao = Math.abs((H0_GLOBAL - h0local) / H0_GLOBAL);
+      const vcorrigida = vnewton * (1 + correcao);
+      const erro = Math.abs((vcorrigida - vobs) / vobs) * 100;
+
+      const table = document.querySelector('#resultadoTable tbody');
+      const row = table.insertRow();
+
+      row.innerHTML = `
+        <td>${nome}</td>
+        <td>${cz}</td>
+        <td>${D}</td>
+        <td>${h0local.toFixed(2)}</td>
+        <td>${vnewton}</td>
+        <td>${(correcao * 100).toFixed(2)}</td>
+        <td>${vcorrigida.toFixed(1)}</td>
+        <td>${vobs}</td>
+        <td>${erro.toFixed(2)}</td>
+      `;
+
+      document.getElementById('galaxyForm').reset();
+    });
+  </script>
+</body>
+</html>
